@@ -1,0 +1,68 @@
+h1. Ceilometer Java (early dev)
+
+h2. Stauts
+
+Only two counters has been implemented (instance, cpu)
+
+* instance : is a rabbitmq listener
+* cpu : is scheduled each 10 secs gathering info from libvirt
+
+h2. Requirements
+
+h3. Runtime
+
+<pre>
+woorea@openstack:~$ java -version
+java version "1.6.0_23"
+OpenJDK Runtime Environment (IcedTea6 1.11pre) (6b23~pre11-0ubuntu1.11.10.2)
+OpenJDK 64-Bit Server VM (build 20.0-b11, mixed mode)
+</pre>
+
+h3. Development
+
+<pre>
+iMac-de-woorea:~ sp$ java -version
+java version "1.6.0_31"
+Java(TM) SE Runtime Environment (build 1.6.0_31-b04-413-10M3623)
+Java HotSpot(TM) 64-Bit Server VM (build 20.6-b01-413, mixed mode)
+
+iMac-de-woorea:~ sp$ mvn -version
+Apache Maven 3.0.3 (r1075438; 2011-02-28 18:31:09+0100)
+Maven home: /usr/share/maven
+Java version: 1.6.0_31, vendor: Apple Inc.
+Java home: /System/Library/Java/JavaVirtualMachines/1.6.0.jdk/Contents/Home
+Default locale: en_US, platform encoding: MacRoman
+OS name: "mac os x", version: "10.6.8", arch: "x86_64", family: "mac"
+</pre>
+
+h2. QuickStart
+
+h3. On your dev box
+
+<pre>
+# git clone http://github.com/woorea/ceilometer-java
+
+# cd ceilometer-java
+
+# mvn clean compile assembly:single
+
+# sftp <your openstack host>
+
+# put target/ceilometer-java-0.0.1-SNAPSHOT-jar-with-dependencies.jar
+</pre>
+
+h3. On OpenStack box
+
+<pre>
+$ vi ceilometer.properties
+
+rabbitmq.host=localhost
+rabbitmq.username=woorea
+rabbitmq.password=secret0
+
+libvirt.uri=qemu:///system
+
+output.dir=/tmp/ceilometer
+
+$ java -jar ceilometer-java-0.0.1-SNAPSHOT-jar-with-dependencies.jar
+</pre>
