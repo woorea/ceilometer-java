@@ -9,7 +9,7 @@ import org.openstack.ceilometer.model.MeterEvent;
 
 public abstract class Poller implements Runnable {
 	
-	private long pollingInterval = 60000;
+	private long pollingInterval = 30000;
 	
 	private Set<MessageListener> listeners = new HashSet<MessageListener>();
 
@@ -26,6 +26,7 @@ public abstract class Poller implements Runnable {
 	 */
 	@Override
 	public void run() {
+		System.out.println("onStart ---");
 		onStart();
 		while(true) {
 			try {
@@ -44,9 +45,7 @@ public abstract class Poller implements Runnable {
 		}
 	}
 	
-	protected void onStart() {
-		
-	}
+	protected abstract void onStart();
 	
 	public abstract Collection<MeterEvent> poll();
 	

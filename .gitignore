@@ -20,3 +20,4 @@ ceilometer-collector/.settings/
 ceilometer-client/.settings/
 ceilometer-api/.settings/
 ceilometer-agent/.settings/
+upload.sh

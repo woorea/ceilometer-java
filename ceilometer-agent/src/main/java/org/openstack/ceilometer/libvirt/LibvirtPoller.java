@@ -19,12 +19,16 @@ public class LibvirtPoller extends Poller {
 
 	private Connect connect;
 	
+	/**
+	 * @param uri the uri to set
+	 */
+	public void setUri(String uri) {
+		this.uri = uri;
+	}
+
 	@Override
 	protected void onStart() {
 		try {
-			if(connect.isConnected()) {
-				connect.close();
-			}
 			System.out.println("Connnection libvirt");
 			connect = new Connect(uri, true);
 		} catch (Exception e) {
