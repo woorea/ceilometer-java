@@ -35,15 +35,15 @@ public class CeilometerClient {
 		endpoint.path("sources/source/list/resources").request(MediaType.APPLICATION_JSON).get(Resources.class);
 		endpoint.path("sources/source/users").request(MediaType.APPLICATION_JSON).get(Users.class);
 		endpoint.path("sources/source/users/2").request(MediaType.APPLICATION_JSON).get(MeterEvents.class);
-		endpoint.path("sources/source/users/2/instance").request(MediaType.APPLICATION_JSON).get(MeterEvents.class);
-		endpoint.path("sources/source/users/2/instance/volume").request(MediaType.APPLICATION_JSON).get(ResourceAggregations.class);
-		endpoint.path("sources/source/users/2/instance/duration").request(MediaType.APPLICATION_JSON).get(ResourceAggregations.class);
+		endpoint.path("sources/source/users/2/meter").request(MediaType.APPLICATION_JSON).get(MeterEvents.class);
+		endpoint.path("sources/source/users/2/meter/volume").request(MediaType.APPLICATION_JSON).get(ResourceAggregations.class);
+		endpoint.path("sources/source/users/2/meter/duration").request(MediaType.APPLICATION_JSON).get(ResourceAggregations.class);
 		endpoint.path("sources/source/users/2/resources").request(MediaType.APPLICATION_JSON).get(Resources.class);
 		endpoint.path("sources/source/projects").request(MediaType.APPLICATION_JSON).get(Projects.class);
 		endpoint.path("sources/source/projects/1").request(MediaType.APPLICATION_JSON).get(MeterEvents.class);
-		endpoint.path("sources/source/projects/1/instance").request(MediaType.APPLICATION_JSON).get(MeterEvents.class);
-		endpoint.path("sources/source/projects/1/instance/volume").request(MediaType.APPLICATION_JSON).get(ResourceAggregations.class);
-		endpoint.path("sources/source/projects/1/instance/duration").request(MediaType.APPLICATION_JSON).get(ResourceAggregations.class);
+		endpoint.path("sources/source/projects/1/meter").request(MediaType.APPLICATION_JSON).get(MeterEvents.class);
+		endpoint.path("sources/source/projects/1/meter/volume").request(MediaType.APPLICATION_JSON).get(ResourceAggregations.class);
+		endpoint.path("sources/source/projects/1/meter/duration").request(MediaType.APPLICATION_JSON).get(ResourceAggregations.class);
 		
 		System.exit(0);
 	
