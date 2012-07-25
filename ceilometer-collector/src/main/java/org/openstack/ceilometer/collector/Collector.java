@@ -29,6 +29,12 @@ public abstract class Collector {
 		}
 		
 		MongoDbMeterEventListener mongoDb = new MongoDbMeterEventListener();
+		mongoDb.setHost(properties.getProperty("mongodb.host", "192.168.1.38"));
+		mongoDb.setPort(Integer.parseInt(properties.getProperty("mongodb.port", "27017")));
+		mongoDb.setDbname(properties.getProperty("mongodb.dbname", "ceilometer"));
+		mongoDb.setUsername(properties.getProperty("mongodb.username", null));
+		mongoDb.setPassword(properties.getProperty("mongodb.password", null));
+		
 		mongoDb.start();
 		
 		MeterEventListener console = new ConsoleMeterEventListener();

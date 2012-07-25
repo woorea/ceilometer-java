@@ -15,7 +15,7 @@ public class MongoDbMeterEventListener implements MeterEventListener {
 	private static final Integer ASC = 1;
 	private static final Integer DESC = -1;
 
-	private String host = "192.168.1.38";
+	private String host = "localhost";
 
 	private int port = 27017;
 
@@ -54,10 +54,10 @@ public class MongoDbMeterEventListener implements MeterEventListener {
 
 			mongo = new Mongo(host, port);
 			db = mongo.getDB(dbname);
-			/*
-			 * if(!db.authenticate(username, password.toCharArray())) { throw
-			 * new RuntimeException("auth"); }
-			 */
+			if(username != null && password != null && !db.authenticate(username, password.toCharArray())) {
+				new RuntimeException("auth"); 
+			}
+			
 			// # We need variations for user_id vs. project_id because of the
 			// # way the indexes are stored in b-trees. The user_id and
 			// # project_id values are usually mutually exclusive in the

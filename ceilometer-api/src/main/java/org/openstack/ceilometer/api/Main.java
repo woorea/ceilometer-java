@@ -25,11 +25,19 @@ public class Main {
 			properties.load(new FileInputStream(propertiesFile));
 		}
 		
+		MongoDbBinder mongoDbBinder = new MongoDbBinder();
+		
+		mongoDbBinder.setHost(properties.getProperty("mongodb.host", "192.168.1.38"));
+		mongoDbBinder.setPort(Integer.parseInt(properties.getProperty("mongodb.port", "27017")));
+		mongoDbBinder.setDbname(properties.getProperty("mongodb.dbname", "ceilometer"));
+		mongoDbBinder.setUsername(properties.getProperty("mongodb.username", null));
+		mongoDbBinder.setUsername(properties.getProperty("mongodb.password", null));
+		
 		ResourceConfig config = new ResourceConfig()
 			//.packages("org.openstack.ceilometer.api")
 			.addClasses(CeilometerApiV1.class)
 			.addBinders(new JsonJacksonBinder())
-			.addBinders(new MongoDbBinder());
+			.addBinders(mongoDbBinder);
 			//.addModules(new JsonJacksonModule())
 			//.addSingletons(api);
 		

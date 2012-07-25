@@ -1,8 +1,6 @@
 package org.openstack.ceilometer.api;
 
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
 
 import org.openstack.ceilometer.model.Metadata;
@@ -74,11 +72,9 @@ public class MongoDbService {
 		try {
 			mongo = new Mongo(host, port);
 			db = mongo.getDB(dbname);
-			/*
-			if(!db.authenticate(username, password.toCharArray())) {
-				throw new RuntimeException("auth");
+			if(username != null && password != null && !db.authenticate(username, password.toCharArray())) {
+				new RuntimeException("auth"); 
 			}
-			*/
 		} catch (Exception e) {
 			throw new RuntimeException();
 		}
@@ -114,65 +110,6 @@ public class MongoDbService {
 		
 		return builder.get();
 	
-	}
-	
-	public void store(MeterEvent data) {
-		//# Make sure we know about the user and project
-		db.getCollection("user").update(
-			new BasicDBObject("_id", data.getUserId()), 
-			BasicDBObjectBuilder.start()
-				.push("$addToSet")
-					.add("source", data.getSource())
-				.pop()
-			.get(), 
-			true, 
-			false
-		);
-		db.getCollection("project").update(
-			new BasicDBObject("_id", data.getProjectId()), 
-			BasicDBObjectBuilder.start()
-				.push("$addToSet")
-					.add("source", data.getSource())
-				.pop()
-			.get(), 
-			true, 
-			false
-		);
-		//# Record the updated resource metadata
-		long timestamp = System.currentTimeMillis();
-		db.getCollection("resource").update(
-			new BasicDBObject("_id", data.getResourceId()), 
-			BasicDBObjectBuilder.start()
-				.push("$set")
-					.add("project_id", data.getProjectId())
-					.add("user_id", data.getUserId())
-					.add("timestamp", timestamp)
-					.add("metadata", data.getMetadata())
-				.pop()
-				.push("$addToSet")
-					.push("meter")
-						.add("counter_name", data.getName())
-						.add("counter_type", data.getType())
-					.pop()
-				.pop()
-			.get(), 
-			true, 
-			false
-		);
-		
-		db.getCollection("meter").insert(
-			new BasicDBObjectBuilder()
-				.add("source", data.getSource())
-				.add("name", data.getName())
-				.add("type", data.getType())
-				.add("volume", data.getVolume())
-				.add("project_id", data.getProjectId())
-				.add("user_id", data.getUserId())
-				.add("resource_id", data.getResourceId())
-				.add("timestamp", data.getTimestamp())
-				.add("metadata", data.getMetadata())
-			.get()
-		);
 	}
 	
 	/**
@@ -341,49 +278,6 @@ public class MongoDbService {
 		
 		return results;
 		
-	}
-	
-	public static void main(String[] args) {
-		
-		MongoDbService service = new MongoDbService();
-		service.setHost("192.168.1.38");
-		service.setPort(27017);
-		service.setDbname("ceilometer");
-		service.start();
-		
-		for(final String resourceId : new String[]{"resource.1","resource.2"}) {
-			for(int i = 0; i < 10; i++) {
-				MeterEvent m = new MeterEvent();
-				m.setName("instance");
-				m.setProjectId("1");
-				m.setUserId("2");
-				m.setResourceId(resourceId);
-				m.setSource("?");
-				m.setType("delta");
-				m.setVolume(1);
-				m.setMetadata(new HashMap<String, Object>());
-				m.setTimestamp(Calendar.getInstance());
-				service.store(m);
-			}
-		}
-		
-		System.out.println(service.getUsers(null));
-		System.out.println(service.getProjects(null));
-		System.out.println(service.getResources(null, null, null));
-		System.out.println(service.getRawEvents(new EventFilter(){{
-			setUser("2");
-		}}));
-		/*
-		System.out.println(service.getVolumeSum(new EventFilter(){{
-			//setResource("3");
-		}}));
-		System.out.println(service.getVolumeMax(new EventFilter(){{
-			//setResource("3");
-		}}));
-		System.out.println(service.getDurationSum(new EventFilter(){{
-			//setResource("3");
-		}}));
-		*/
 	}
 
 }
