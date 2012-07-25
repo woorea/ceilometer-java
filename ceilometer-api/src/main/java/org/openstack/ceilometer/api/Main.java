@@ -25,17 +25,13 @@ public class Main {
 			properties.load(new FileInputStream(propertiesFile));
 		}
 		
-		MongoDbService mongoDb = new MongoDbService();
-		mongoDb.start();
-		
-		CeilometerApiV1 api = new CeilometerApiV1();
-		api.setService(mongoDb);
-		
 		ResourceConfig config = new ResourceConfig()
-			.packages("org.openstack.ceilometer.api")
+			//.packages("org.openstack.ceilometer.api")
+			.addClasses(CeilometerApiV1.class)
 			.addBinders(new JsonJacksonBinder())
+			.addBinders(new MongoDbBinder());
 			//.addModules(new JsonJacksonModule())
-			.addSingletons(api);
+			//.addSingletons(api);
 		
 		URI baseUri = URI.create(properties.getProperty("base_uri","http://localhost:8989/")) ;
 		

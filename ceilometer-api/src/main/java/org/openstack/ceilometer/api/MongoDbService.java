@@ -1,12 +1,16 @@
 package org.openstack.ceilometer.api;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
+import org.openstack.ceilometer.model.Metadata;
 import org.openstack.ceilometer.model.MeterEvent;
+import org.openstack.ceilometer.model.ResourceAggregations;
+import org.openstack.ceilometer.model.ResourceAggregations.ResourceAggregation;
+import org.openstack.ceilometer.model.Resources;
+import org.openstack.ceilometer.model.Resources.Resource.Meter;
 
+import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DB;
@@ -66,9 +70,8 @@ public class MongoDbService {
 
 	public void start() {
 		try {
-			MongoDbService service = new MongoDbService();
-			service.mongo = new Mongo(host, port);
-			service.db = service.mongo.getDB(dbname);
+			mongo = new Mongo(host, port);
+			db = mongo.getDB(dbname);
 			/*
 			if(!db.authenticate(username, password.toCharArray())) {
 				throw new RuntimeException("auth");
@@ -175,21 +178,35 @@ public class MongoDbService {
 	 * 
 	 * @param source
 	 */
-	public List<?> getUsers(String source) {
+	public List<String> getUsers(String source) {
+		List<String> users = new ArrayList<String>();
 		DBObject query = null;
 		if(source != null) {
 			query = new BasicDBObject("source", source);
 		}
-		return db.getCollection("user").distinct("_id");
+		List l = db.getCollection("user").distinct("_id");
+		for(Object o : l) {
+			if(o != null) {
+				users.add(o.toString());
+			}
+		}
+		return users;
 		
 	}
 	
-	public List<?> getProjects(String source) {
+	public List<String> getProjects(String source) {
+		List<String> projects = new ArrayList<String>();
 		DBObject query = null;
 		if(source != null) {
 			query = new BasicDBObject("source", source);
 		}
-		return db.getCollection("project").distinct("_id");
+		List l = db.getCollection("project").distinct("_id");
+		for(Object o : l) {
+			if(o != null) {
+				projects.add(o.toString());
+			}
+		}
+		return projects;
 
 	}
 	/**
@@ -199,7 +216,7 @@ public class MongoDbService {
 	 * @param project
 	 * @param source
 	 */
-	public List<Map<String, Object>> getResources(String source, String project, String user) {
+	public List<Resources.Resource> getResources(String source, String project, String user) {
 		
 		BasicDBObjectBuilder dboBuilder = new BasicDBObjectBuilder();
 		
@@ -217,15 +234,28 @@ public class MongoDbService {
 		
 		
 		DBCursor dbCursor = db.getCollection("resource").find(dboBuilder.get());
-		List<Map<String, Object>> resources = new ArrayList<Map<String, Object>>();
+		List<Resources.Resource> resources = new ArrayList<Resources.Resource>();
 		for(DBObject dbo : dbCursor) {
-			Map<String, Object> resource = new HashMap<String, Object>();
-			resource.put("resource_id", dbo.get("_id"));
-			resource.put("project_id", dbo.get("project_id"));
-			resource.put("user_id", dbo.get("user_id"));
-			resource.put("timestamp", dbo.get("timestamp"));
-			resource.put("metadata", dbo.get("metadata"));
-			resource.put("meter", dbo.get("meter"));
+			Resources.Resource resource = new Resources.Resource();
+			resource.setId((String) dbo.get("_id"));
+			resource.setProjectId((String) dbo.get("project_id"));
+			resource.setUserId((String) dbo.get("user_id"));
+			resource.setTimestamp((Long) dbo.get("timestamp"));
+			Object metadataDbo = dbo.get("metadata");
+			//null System.out.println(metadataDbo.getClass().getCanonicalName());
+			Metadata metadata = new Metadata();
+			resource.setMetadata(metadata);
+			List<Meter> meters = new ArrayList<Meter>();
+			BasicDBList dbList = (BasicDBList) dbo.get("meter");
+			for(Object o : dbList) {
+				if(o != null && o instanceof DBObject) {
+					DBObject meterDbo = (DBObject) o;
+					Meter meter = new Meter();
+					meter.setName((String) meterDbo.get("counter_name"));
+					meter.setType((String) meterDbo.get("counter_type"));
+				}
+			}
+			resource.setMeters(meters);
 			resources.add(resource);
 		}
 		return resources;
@@ -254,19 +284,18 @@ public class MongoDbService {
 
 	}
 	
-	public List<Map<String, Object>> getVolumeSum(EventFilter eventFilter) {
+	public List<ResourceAggregations.ResourceAggregation> getVolumeSum(EventFilter eventFilter) {
 		
 		DBObject query = createFilter(eventFilter);
 		
 		MapReduceOutput output = db.getCollection("meter").mapReduce(mapCounterVolume, reduceSum, null, MapReduceCommand.OutputType.INLINE, query);
 		
-		List<Map<String, Object>> results = new ArrayList<Map<String,Object>>();
-		
-		Map<String, Object> result = new HashMap<String, Object>();
+		List<ResourceAggregation> results = new ArrayList<ResourceAggregation>();
 		
 		for(DBObject dbo : output.results()) {
-			result.put("resource_id", dbo.get("_id"));
-			result.put("value", dbo.get("value"));
+			ResourceAggregation result = new ResourceAggregation();
+			result.setResourceId((String) dbo.get("_id"));
+			result.setValue((Number) dbo.get("value"));
 			results.add(result);
 		}
 		
@@ -274,19 +303,18 @@ public class MongoDbService {
 
 	}
 	
-	public List<Map<String, Object>> getVolumeMax(EventFilter eventFilter) {
+	public List<ResourceAggregations.ResourceAggregation> getVolumeMax(EventFilter eventFilter) {
 		
 		DBObject query = createFilter(eventFilter);
 		
 		MapReduceOutput output = db.getCollection("meter").mapReduce(mapCounterVolume, reduceMax, null, MapReduceCommand.OutputType.INLINE, query);
 			
-		List<Map<String, Object>> results = new ArrayList<Map<String,Object>>();
-		
-		Map<String, Object> result = new HashMap<String, Object>();
+		List<ResourceAggregation> results = new ArrayList<ResourceAggregation>();
 		
 		for(DBObject dbo : output.results()) {
-			result.put("resource_id", dbo.get("_id"));
-			result.put("value", dbo.get("value"));
+			ResourceAggregation result = new ResourceAggregation();
+			result.setResourceId((String) dbo.get("_id"));
+			result.setValue((Number) dbo.get("value"));
 			results.add(result);
 		}
 		
@@ -294,19 +322,18 @@ public class MongoDbService {
 
 	}
 	
-	public List<Map<String, Object>> getDurationSum(EventFilter eventFilter) {
+	public List<ResourceAggregation> getDurationSum(EventFilter eventFilter) {
 		
 		DBObject query = createFilter(eventFilter);
 		
 		MapReduceOutput output = db.getCollection("meter").mapReduce(mapCounterDuration, reduceMax, null, MapReduceCommand.OutputType.INLINE, query);
 		
-		List<Map<String, Object>> results = new ArrayList<Map<String,Object>>();
-		
-		Map<String, Object> result = new HashMap<String, Object>();
+		List<ResourceAggregation> results = new ArrayList<ResourceAggregation>();
 		
 		for(DBObject dbo : output.results()) {
-			result.put("resource_id", dbo.get("_id"));
-			result.put("value", dbo.get("value"));
+			ResourceAggregation result = new ResourceAggregation();
+			result.setResourceId((String) dbo.get("_id"));
+			result.setValue((Number) dbo.get("value"));
 			results.add(result);
 		}
 		
