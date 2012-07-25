@@ -1,5 +1,8 @@
 package org.openstack.ceilometer.model;
 
+import java.util.Calendar;
+import java.util.Map;
+
 public class MeterEvent {
 
 	private Object source;
@@ -12,7 +15,7 @@ public class MeterEvent {
 	
 	private String resourceId;
 	
-	private String metadata;
+	private Map<String, Object> metadata;
 	
 	//meter
 	
@@ -22,7 +25,7 @@ public class MeterEvent {
 	
 	private Integer duration;
 	
-	private long timestamp;
+	private Calendar timestamp;
 	
 	
 	private String messageId;
@@ -69,11 +72,11 @@ public class MeterEvent {
 		this.resourceId = resourceId;
 	}
 
-	public String getMetadata() {
+	public Map<String, Object> getMetadata() {
 		return metadata;
 	}
 
-	public void setMetadata(String metadata) {
+	public void setMetadata(Map<String, Object> metadata) {
 		this.metadata = metadata;
 	}
 
@@ -101,11 +104,11 @@ public class MeterEvent {
 		this.duration = duration;
 	}
 
-	public long getTimestamp() {
+	public Calendar getTimestamp() {
 		return timestamp;
 	}
 
-	public void setTimestamp(long timestamp) {
+	public void setTimestamp(Calendar timestamp) {
 		this.timestamp = timestamp;
 	}
 

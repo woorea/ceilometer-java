@@ -136,10 +136,12 @@ public class RabbitMqConsumer implements Runnable {
 					System.out.println(" ["+Thread.currentThread().getName()+"] Received '"
 							+ routingKey + "':'" + message + "'");
 
-					MeterEvent meterEvent = messageHandler.handle(message);
+					Set<MeterEvent> meterEvents = messageHandler.handle(message);
 					
 					for(MeterEventListener meterEventListener : meterEventListeners) {
-						meterEventListener.onMeterEvent(meterEvent);
+						for(MeterEvent meterEvent : meterEvents) {
+							meterEventListener.onMeterEvent(meterEvent);
+						}
 					}
 							
 				} catch (Exception e) {

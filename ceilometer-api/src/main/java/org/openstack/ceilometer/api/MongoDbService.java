@@ -1,6 +1,8 @@
 package org.openstack.ceilometer.api;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 
 import org.openstack.ceilometer.model.Metadata;
@@ -359,8 +361,8 @@ public class MongoDbService {
 				m.setSource("?");
 				m.setType("delta");
 				m.setVolume(1);
-				m.setMetadata("{\"key1\" : \"val1\"}");
-				m.setTimestamp(System.currentTimeMillis());
+				m.setMetadata(new HashMap<String, Object>());
+				m.setTimestamp(Calendar.getInstance());
 				service.store(m);
 			}
 		}

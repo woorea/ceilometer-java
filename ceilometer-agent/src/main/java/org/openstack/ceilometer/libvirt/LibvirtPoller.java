@@ -1,5 +1,6 @@
 package org.openstack.ceilometer.libvirt;
 
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -112,7 +113,7 @@ public class LibvirtPoller extends Poller {
 		//m.setUserId(server.getUserId());
 		//m.setProjectId(server.getTenantId());
 		m.setResourceId(resourceId);
-		m.setTimestamp(System.currentTimeMillis());
+		m.setTimestamp(Calendar.getInstance());
 		m.setType(type);
 		m.setVolume(volume);
 		//m.setMetadata(server.getMetadata().toString());

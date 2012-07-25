@@ -17,7 +17,7 @@ public class NotificationMessageHandler implements MessageHandler {
 	}
 
 	@Override
-	public MeterEvent handle(String message) {
+	public Set<MeterEvent> handle(String message) {
 	
 		NotificationInfo notificationInfo = read(message);
 		
