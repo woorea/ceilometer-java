@@ -14,13 +14,13 @@ import javax.ws.rs.core.MediaType;
 import org.openstack.ceilometer.model.MeterEvent;
 
 @Path("v1")
-@Produces({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
+@Produces({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
 public class CeilometerApiV1 {
 	
 	private MongoDbService service;
 	
-	public CeilometerApiV1(MongoDbService service) {
-		this.service = service;
+	public void setService(MongoDbService mongoDbService) {
+		service = mongoDbService;
 	}
 	
 	@GET
